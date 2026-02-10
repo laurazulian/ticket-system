@@ -4,8 +4,8 @@
 import React from 'react';
 import { Search, List, Grid } from 'lucide-react';
 import { ESTADOS, PRIORIDADES, TECNICOS } from '../utils/constants';
-import TablaTickets from './TablaTickets';
-import KanbanView from './KanbanView';
+import TablaTickets from '..components/TablaTickets';
+import KanbanView from '..components/KanbanView';
 
 const ListaTickets = ({
   tickets,
