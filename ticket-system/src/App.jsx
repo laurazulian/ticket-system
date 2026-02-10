@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { ticketsIniciales } from './data/initialData';
 import { generarNumeroTicket, calcularSlaHoras } from './utils/helpers';
+import { TECNICOS } from './utils/constants';
 
 // Layout Components
 import Header from './components/layout/Header';
@@ -16,11 +17,32 @@ import Dashboard from './components/Dashboard';
 import ListaTickets from './components/ListaTickets';
 import DetalleTicket from './components/DetalleTicket';
 import MisTickets from './components/MisTickets';
+import AdminPanel from './components/admin/AdminPanel';
 
 // Modal Components
 import ModalNuevoTicket from './components/modals/ModalNuevoTicket';
 import ModalEdicion from './components/modals/ModalEdicion';
 import ModalCambiosMasivos from './components/modals/ModalCambiosMasivos';
+
+// Datos iniciales de usuarios
+const usuariosIniciales = TECNICOS.map((nombre, index) => ({
+  id: index + 1,
+  nombre,
+  email: `${nombre.toLowerCase().replace(' ', '.')}@empresa.com`,
+  rol: 'tecnico',
+  activo: true,
+  areas: index === 0 ? ['TELECOM'] : index === 1 ? ['INFRA'] : ['DESARROLLO']
+}));
+
+// Agregar usuario admin
+usuariosIniciales.unshift({
+  id: 0,
+  nombre: 'Admin Sistema',
+  email: 'admin@empresa.com',
+  rol: 'admin',
+  activo: true,
+  areas: ['TELECOM', 'INFRA', 'DESARROLLO']
+});
 
 const App = () => {
   // ========================================
@@ -28,10 +50,18 @@ const App = () => {
   // ========================================
   const [tickets, setTickets] = useLocalStorage('tickets', ticketsIniciales);
   const [notificaciones, setNotificaciones] = useLocalStorage('notificaciones', []);
+  const [usuarios, setUsuarios] = useLocalStorage('usuarios', usuariosIniciales);
+  const [proyectos] = useState([
+    { id: 1, codigo: 'TELECOM', nombre: 'Telecomunicaciones', area: 'TELECOM', estado: 'ACTIVO', color: '#3b82f6' },
+    { id: 2, codigo: 'INFRA', nombre: 'Infraestructura IT', area: 'INFRA', estado: 'ACTIVO', color: '#f97316' },
+    { id: 3, codigo: 'DEV', nombre: 'Desarrollo', area: 'DESARROLLO', estado: 'ACTIVO', color: '#10b981' }
+  ]);
+  
+  // NOTA: Cambiar entre 'admin' y 'tecnico' para probar diferentes roles
   const [usuarioActual] = useState({
-    nombre: 'Carlos López',
-    rol: 'tecnico',
-    email: 'carlos.lopez@empresa.com'
+    nombre: 'Admin Sistema', // Cambiar a 'Carlos López' para ver como técnico
+    rol: 'admin', // Cambiar a 'tecnico' para ver vista de técnico
+    email: 'admin@empresa.com'
   });
 
   // ========================================
@@ -217,6 +247,7 @@ const App = () => {
       <Navigation
         vistaActual={vistaActual}
         onCambiarVista={setVistaActual}
+        usuarioActual={usuarioActual}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -260,6 +291,24 @@ const App = () => {
             usuarioActual={usuarioActual}
             onVerDetalle={handleVerDetalle}
             onEditarTicket={handleEditarTicket}
+          />
+        )}
+
+        {vistaActual === 'admin' && (
+          <AdminPanel
+            tickets={tickets}
+            usuarios={usuarios}
+            proyectos={proyectos}
+            onActualizarTicket={actualizarTicket}
+            onActualizarUsuario={(usuarioId, cambios) => {
+              setUsuarios(prev => prev.map(u => 
+                u.id === usuarioId ? { ...u, ...cambios } : u
+              ));
+            }}
+            onActualizarProyecto={(proyectoId, cambios) => {
+              console.log('Actualizar proyecto', proyectoId, cambios);
+            }}
+            usuarioActual={usuarioActual}
           />
         )}
       </main>

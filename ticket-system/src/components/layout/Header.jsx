@@ -1,3 +1,6 @@
+// ========================================
+// src/components/layout/Header.jsx
+// ========================================
 import React from 'react';
 import { Bell, Plus } from 'lucide-react';
 
