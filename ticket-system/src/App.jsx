@@ -57,12 +57,21 @@ const App = () => {
     { id: 3, codigo: 'DEV', nombre: 'Desarrollo', area: 'DESARROLLO', estado: 'ACTIVO', color: '#10b981' }
   ]);
   
-  // NOTA: Cambiar entre 'admin' y 'tecnico' para probar diferentes roles
-  const [usuarioActual] = useState({
-    nombre: 'Admin Sistema', // Cambiar a 'Carlos López' para ver como técnico
-    rol: 'admin', // Cambiar a 'tecnico' para ver vista de técnico
-    email: 'admin@empresa.com'
-  });
+  // ... (tus otros estados)
+
+// 1. Cambiamos useState por useLocalStorage para persistencia
+// Por defecto, iniciamos con el primer usuario (Admin)
+const [usuarioActual, setUsuarioActual] = useLocalStorage('sesion_usuario', usuarios[0]);
+
+// 2. Función para cambiar de rol dinámicamente
+const cambiarUsuario = (idUsuario) => {
+  const nuevoUsuario = usuarios.find(u => u.id === parseInt(idUsuario));
+  if (nuevoUsuario) {
+    setUsuarioActual(nuevoUsuario);
+    setVistaActual('dashboard'); // Opcional: resetear vista al cambiar
+    info(`Sesión cambiada a: ${nuevoUsuario.nombre} (${nuevoUsuario.rol})`);
+  }
+};
 
   // ========================================
   // ESTADO LOCAL
@@ -239,9 +248,11 @@ const App = () => {
     <div className="min-h-screen bg-gray-100">
       <Header
         usuarioActual={usuarioActual}
-        notificacionesNoLeidas={notificacionesNoLeidas}
-        onMostrarNotificaciones={handleToggleNotificaciones}
-        onNuevoTicket={handleNuevoTicket}
+    usuarios={usuarios} // Pasa la lista de usuarios
+    onCambiarUsuario={cambiarUsuario} // Pasa la función
+    notificacionesNoLeidas={notificacionesNoLeidas}
+    onMostrarNotificaciones={handleToggleNotificaciones}
+    onNuevoTicket={handleNuevoTicket}
       />
 
       <Navigation
@@ -349,6 +360,8 @@ const App = () => {
         onAplicar={aplicarCambiosMasivos}
       />
     </div>
+
+    
   );
 };
 

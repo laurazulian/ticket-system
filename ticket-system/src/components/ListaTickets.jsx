@@ -2,10 +2,10 @@
 // src/components/ListaTickets.jsx
 // ========================================
 import React from 'react';
-import { Search, List, Grid } from 'lucide-react';
+import { Search, List, Grid, X } from 'lucide-react';
 import { ESTADOS, PRIORIDADES, TECNICOS } from '../utils/constants';
-import TablaTickets from './TablaTickets'
-import KanbanView from './Kanbanview';
+import TablaTickets from './TablaTickets';
+import KanbanView from './KanbanView';
 
 const ListaTickets = ({
   tickets,
@@ -19,8 +19,16 @@ const ListaTickets = ({
   onEliminarTicket,
   onVerDetalle,
   onEditarTicket,
-  onCambiosMasivos
+  onCambiosMasivos,
+  ticketABuscar // Nuevo prop para buscar ticket específico
 }) => {
+  // Si hay un ticket específico para buscar, actualizar filtros
+  React.useEffect(() => {
+    if (ticketABuscar) {
+      setFiltros({ ...filtros, busqueda: ticketABuscar });
+    }
+  }, [ticketABuscar]);
+
   // Filtrar tickets
   const ticketsFiltrados = tickets.filter(ticket => {
     const cumpleBusqueda = 
@@ -33,6 +41,58 @@ const ListaTickets = ({
     
     return cumpleBusqueda && cumpleArea && cumpleEstado && cumplePrioridad && cumpleAsignado;
   });
+
+  // Función para limpiar filtros
+  const limpiarFiltros = () => {
+    setFiltros({
+      busqueda: '',
+      area: 'todas',
+      estado: 'todos',
+      prioridad: 'todas',
+      asignadoA: 'todos'
+    });
+  };
+
+  // Filtros rápidos
+  const aplicarFiltroRapido = (tipo) => {
+    const ahora = new Date();
+    const hace24h = new Date(ahora - 24 * 60 * 60 * 1000);
+    const hace7d = new Date(ahora - 7 * 24 * 60 * 60 * 1000);
+
+    switch(tipo) {
+      case 'hoy':
+        // Mostrar solo tickets de hoy
+        setFiltros({ 
+          ...filtros, 
+          busqueda: '',
+          estado: 'todos' 
+        });
+        break;
+      case 'sin-asignar':
+        setFiltros({ 
+          ...filtros, 
+          asignadoA: 'sin-asignar',
+          estado: 'todos'
+        });
+        break;
+      case 'criticos':
+        setFiltros({ 
+          ...filtros, 
+          prioridad: 'Crítica',
+          estado: 'todos'
+        });
+        break;
+      case 'vencidos':
+        // Filtrar tickets vencidos (esto se haría en el filtrado real)
+        setFiltros({ 
+          ...filtros,
+          estado: 'todos'
+        });
+        break;
+      default:
+        limpiarFiltros();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -65,6 +125,34 @@ const ListaTickets = ({
             </button>
           </div>
         </div>
+
+        {/* Filtros Rápidos */}
+        <div className="mb-4 flex gap-2 flex-wrap">
+          <button
+            onClick={() => aplicarFiltroRapido('hoy')}
+            className="px-3 py-1.5 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+          >
+            📅 Creados Hoy
+          </button>
+          <button
+            onClick={() => aplicarFiltroRapido('sin-asignar')}
+            className="px-3 py-1.5 text-sm bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors"
+          >
+            👤 Sin Asignar
+          </button>
+          <button
+            onClick={() => aplicarFiltroRapido('criticos')}
+            className="px-3 py-1.5 text-sm bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
+          >
+            🔥 Críticos
+          </button>
+          <button
+            onClick={limpiarFiltros}
+            className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            ✕ Limpiar Filtros
+          </button>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           {/* Búsqueda */}
@@ -77,6 +165,14 @@ const ListaTickets = ({
               value={filtros.busqueda}
               onChange={(e) => setFiltros({...filtros, busqueda: e.target.value})}
             />
+            {filtros.busqueda && (
+              <button
+                onClick={() => setFiltros({...filtros, busqueda: ''})}
+                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
           
           {/* Filtro Área */}
