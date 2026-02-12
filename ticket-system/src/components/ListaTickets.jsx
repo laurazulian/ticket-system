@@ -5,7 +5,7 @@ import React from 'react';
 import { Search, List, Grid, X } from 'lucide-react';
 import { ESTADOS, PRIORIDADES, TECNICOS } from '../utils/constants';
 import TablaTickets from './TablaTickets';
-import KanbanView from './KanbanView';
+import KanbanView from './Kanbanview';
 
 const ListaTickets = ({
   tickets,
