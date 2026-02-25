@@ -18,6 +18,7 @@ import ListaTickets from './components/ListaTickets';
 import DetalleTicket from './components/DetalleTicket';
 import MisTickets from './components/MisTickets';
 import AdminPanel from './components/admin/AdminPanel';
+import ProjectManager from './components/ProjectManager';
 
 // Modal Components
 import ModalNuevoTicket from './components/modals/ModalNuevoTicket';
@@ -69,7 +70,10 @@ const cambiarUsuario = (idUsuario) => {
   if (nuevoUsuario) {
     setUsuarioActual(nuevoUsuario);
     setVistaActual('dashboard'); // Opcional: resetear vista al cambiar
-    info(`Sesión cambiada a: ${nuevoUsuario.nombre} (${nuevoUsuario.rol})`);
+    agregarNotificacion(
+  'sesion',
+  `Sesión cambiada a: ${nuevoUsuario.nombre} (${nuevoUsuario.rol})`
+);
   }
 };
 
@@ -322,6 +326,27 @@ const cambiarUsuario = (idUsuario) => {
             usuarioActual={usuarioActual}
           />
         )}
+              {vistaActual === 'proyectos' && (
+        <ProjectManager
+          usuarios={usuarios}
+          onGenerarTicket={(data) => {
+            const ticketCreado = crearTicket({
+              titulo: data.titulo,
+              descripcion: data.descripcion,
+              area: 'DESARROLLO', // o podrías hacerlo dinámico
+              prioridad: data.prioridad,
+              estado: 'ABIERTO',
+              asignadoA: data.responsable
+            });
+
+            agregarNotificacion(
+              'creacion',
+              `Ticket generado desde Proyecto: ${ticketCreado.numero}`,
+              ticketCreado.id
+            );
+          }}
+        />
+      )}
       </main>
 
       {/* Modales y Panels */}

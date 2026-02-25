@@ -2,19 +2,21 @@
 // src/components/layout/Navigation.jsx
 // ========================================
 import React from 'react';
-import { Settings } from 'lucide-react';
+import { Settings, FolderKanban } from 'lucide-react';
 
 const Navigation = ({ vistaActual, onCambiarVista, usuarioActual }) => {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'tickets', label: 'Todos los Tickets' },
-    { id: 'mis-tickets', label: 'Mis Tickets' }
+    { id: 'mis-tickets', label: 'Mis Tickets' },
   ];
 
   // Agregar tab de administración solo para admins
-  if (usuarioActual && usuarioActual.rol === 'admin') {
-    tabs.push({ id: 'admin', label: 'Administración', icon: Settings });
-  }
+if (usuarioActual && usuarioActual.rol === 'admin') {
+  tabs.push({ id: 'proyectos', label: 'Proyectos', icon: FolderKanban });
+  tabs.push({ id: 'admin', label: 'Administración', icon: Settings });
+}
+
 
   return (
     <nav className="bg-white border-b">
